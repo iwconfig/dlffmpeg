@@ -1,4 +1,22 @@
-"""
+#!/usr/bin/env python
+from __future__ import print_function
+import os, platform, cursor, atexit
+from codecs import open
+from requests import get, Timeout, ConnectionError
+from tempfile import gettempdir
+from sys import stdout, argv, exit, version_info
+from subprocess import check_output, call
+
+system = platform.system().lower()
+# system = 'darwin'
+if any(x in system for x in ['darwin', 'windows']):
+    from zipfile import ZipFile, is_zipfile
+    from re import sub, findall
+    from pkg_resources import parse_version
+    from shutil import copy2
+
+
+__info__ = """
 This module, which also functions as a standalone script, downloads
 the latest (static binary) release of FFmpeg from different sources.
 These sites are all linked to by the official homepage of FFmpeg.
@@ -17,22 +35,15 @@ run() uses default path.
 run('/path') installs ffmpeg into custom '/path'.
 As standalone: takes 0 or 1 argument. Either default or custom path.
 """
-import os, platform
-from requests import get, Timeout, ConnectionError
-from tempfile import gettempdir
-from sys import stdout, argv, exit
-from subprocess import check_output, call
+__version__ = '0.3'
 
-system = platform.system().lower()
-# system = 'darwin'
-if any(x in system for x in ['darwin', 'windows']):
-    from zipfile import ZipFile, is_zipfile
-    from re import sub, findall
-    from pkg_resources import parse_version
-    from shutil import copy2
-
+def info():
+    return __info__
 
 def run(topath = None, silent = False, pretty=False, verbose=True):
+    cursor.hide()
+    atexit.register(cursor.show)
+
     def info(k, v = None, beforeString = 0, afterString = 0, indent = True, verbose=True): ## this is a mess
         if silent:
             return
@@ -45,7 +56,8 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
                 t = '\t\t'
         else:
             indent = False
-            t = ''; k += ' '
+            t = ''
+            k += ' '
 
         if k and v == None:
             k = '{}'.format(k)
@@ -63,8 +75,8 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
               '32bit':   ['x86', 'x32', '32', 'i686', 'i386'],
               'armel' :   ['armv4tl', 'armv5l', 'armv6l'],
               'armhf' :   ['armv7l', 'armv8l']}
-        
-        for k, v in arches.iteritems():
+
+        for k, v in arches.iteritems() if version_info[0] == 2 else arches.items():
             if [x for x in v if x == platform.machine().lower()]:
                 return k
 
@@ -93,6 +105,9 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
                 os.makedirs(path)
                 
         if os.path.isdir(path):
+            if not os.access(path, os.W_OK):
+                print('you need write permission to {}. run as root.'.format(path))
+                exit(1)
             return path
         else:
             return False    
@@ -103,11 +118,11 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
         else:
             from hashlib import md5
             if verbose:
-                info('checksum:')
-            with open(md5_file) as md5_to_verify:
+                info('checksum:', beforeString=1)
+            with open(md5_file, encoding='ascii') as md5_to_verify:
                 original_md5 = md5_to_verify.read().split(' ')[0]
-            with open(file_name) as file_to_check:
-                data = file_to_check.read()    
+            with open(file_name, 'rb') as file_to_check:
+                data = file_to_check.read()
                 md5_returned = md5(data).hexdigest()
             if original_md5 == md5_returned:
                 if verbose:
@@ -124,7 +139,7 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
     
     def dl(url, file, tmp):
         if verbose:
-            info('downloading:', file)
+            info('downloading:', file, beforeString=1)
         else:
             if file.endswith('.md5'):
                 info('downloading md5 sum',afterString=1, verbose=False)
@@ -146,7 +161,6 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
                     continue
     
                 if r.status_code == 200:
-                    print 'hello'
                     break
             break
 
@@ -161,7 +175,7 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
         try:
             if os.path.exists(path + os.sep + 'ffmpeg'):
                 if verbose:
-                    info('old ffmpeg:', beforeString=2)
+                    info('old ffmpeg:', beforeString=1)
                     
                 for p, d, f in os.walk(path, topdown=False):
                     if 'linux' in system:
@@ -175,19 +189,20 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
                 if verbose:
                     info('removed', afterString=2)
         except:
-            info('error', afterString=1)
-            if os.getuid != 0:
-                print 'you need root access for this.'
-                exit(1)
-                
+            info('something went wrong', beforeString=3, afterString=2) 
+            import traceback
+            print('Exception in user code:')
+            print('-'*60)
+            traceback.print_exc(file=stdout)
+            print('-'*60)
         else:
             try:
                 if verbose:
-                    info('install path:', '{}{}'.format(path, ' (default)' if not args.path else ''))
+                    info('install path:', '{}{}'.format(path, ' (default)' if not topath else ''))
                     info('installing:', beforeString=1)
                 if 'linux' in system:
                     check_output(['tar', '-tf', tmp]).splitlines()[0]
-                    call(['sudo', 'tar', '-xJf', tmp, '--strip-components=1', '--overwrite', '-C', path, '--wildcards', '*/ffmpeg', '*/ffmpeg-10bit', '*/ffprobe', '*/ffserver'])
+                    call(['tar', '-xJf', tmp, '--strip-components=1', '--overwrite', '-C', path, '--wildcards', '*/ffmpeg', '*/ffmpeg-10bit', '*/ffprobe', '*/ffserver'])
                 if 'darwin' in system:
                     if arch == '64bit':
                         call(['hdiutil', 'attach', tmp])
@@ -217,9 +232,9 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
                     call(['setx', '/M', 'PATH', path + 'ffmpeg\\bin;%PATH%'], shell=False)
     
             except:
-                print '\nerror\n'
+                print('\nerror\n')
                 import traceback
-                print traceback.print_exc(file=stdout)
+                print(traceback.print_exc(file=stdout))
             else:
                 if verbose:
                     info('INSTALLED', afterString=1)
@@ -248,7 +263,7 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
         latest = [x.strip(' ') for x in r if 'release:' in x][0].split(': ')[1]
         info('{} static (latest release)', latest, afterString=1)
         if verbose:
-            info('source:', url.rsplit('/rel', 1)[0], afterString=2)
+            info('source:', url.rsplit('/rel', 1)[0], afterString=1)
         if arch in ('armel', 'armhf'):
     	    arch = '{}-32bit'.format(arch)
         file = 'ffmpeg-release-{}-static.tar.xz'.format(arch)
@@ -311,39 +326,18 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
             dl(url, file, tmp)
         install(path)
 
-h = """
-dlffmpeg
-    
-
-usage:
-  dlffmpeg.py (default path)
-  dlffmpeg.py (options) <path>
-  
-  pass 1 argument to specify install path or 0 argument for default install path.
-  
-  
-options:
-  -h --help     show this screen.
-  -v --version     show version.
-  -q --quiet    be quiet.
-"""
 if __name__ == '__main__':
-    __version__ = '0.3'
     from argparse import ArgumentParser
     p = ArgumentParser(description='pass 1 argument to specify install path or 0 argument for default install path')
     p.add_argument('path', nargs='?', const=None)
     p.add_argument('-s', '--silent', action='store_true', dest='silent')
     p.add_argument('-lv', '--less-verbose', action='store_false', dest='verbose')
-    p.add_argument('-p', '--pretty', action='store_false', dest='pretty')
+    p.add_argument('-p', '--pretty', action='store_true', dest='pretty')
     p.add_argument('--version', action='version',
                     version='%(prog)s {version}'.format(version=__version__))
 
     args = p.parse_args()
-    print args
-    len(argv)
-    if len(argv) == 1:
-        print 'path empty'
     try:
         run(args.path, args.silent, args.pretty, args.verbose)
     except KeyboardInterrupt:
-        print '\n\nctrl-C: exit'
+        print('\n\nctrl-C: exit')
