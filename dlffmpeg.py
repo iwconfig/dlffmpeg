@@ -133,7 +133,6 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
         while True:
             for x in range(5):
                 r = get(url + file)
-                print r.text
                 if r.status_code != 200:
                     from time import sleep
                     if verbose:
