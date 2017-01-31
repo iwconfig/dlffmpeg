@@ -9,7 +9,6 @@ from subprocess import check_output, call
 
 system = platform.system().lower()
 if not 'linux' in system:
-    print('BLAHEJ')
     from zipfile import ZipFile, is_zipfile
     from re import sub, findall
     from pkg_resources import parse_version
@@ -351,7 +350,7 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
-    p = ArgumentParser(description='pass 1 argument to specify install path or 0 argument for default install path')
+    p = ArgumentParser(description='specify installation path. no path equals to default path.')
     p.add_argument('path', nargs='?', const=None)
     p.add_argument('-s', '--silent', action='store_true', dest='silent')
     p.add_argument('-lv', '--less-verbose', action='store_false', dest='verbose')

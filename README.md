@@ -28,3 +28,26 @@ Windows (64-/32bit)               | https://ffmpeg.zeranoe.com
 Execute with `dl.run()`
 
 Standalone takes one argument for custom path or no argument for default.
+
+    ~/ $ dlffmpeg.py --help
+    usage: dlffmpeg.py [-h] [-s] [-lv] [-p] [--version] [path]
+    
+    specify installation path. no path equals to default path.
+    
+    positional arguments:
+      path
+    
+    optional arguments:
+      -h, --help           show this help message and exit
+      -s, --silent
+      -lv, --less-verbose
+      -p, --pretty
+      --version            show program's version number and exit
+
+### Todo ###
++ Ability to compile and install from source, cross-platform
++ Better module support
+<br><br><br>
+##### Contribute #####
+I am certain my code needs better perspective and from what this script reprecent i'm currently not capable of comprehending better principles.
+Please feel free to fork and improve. :)
