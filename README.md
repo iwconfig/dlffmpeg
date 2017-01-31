@@ -6,7 +6,7 @@ Supported systems are Linux, OS X and Windows.
 Currently armv7 and armv8 architectures are only available for Linux systems.
 
 
-System (architecture)             | Sources
+System (architecture)             | Source
 ----------------------------------|-------------------------------------------------------
 Linux   (64-/32bit, armv7, armv8) | https://johnvansickle.com/ffmpeg
 OS X    (64-/32bit, PPC)          | http://evermeet.cx/ffmpeg and http://www.ffmpegmac.net
