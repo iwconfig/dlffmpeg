@@ -8,7 +8,8 @@ from sys import stdout, argv, exit, version_info
 from subprocess import check_output, call
 
 system = platform.system().lower()
-if any(x in system for x in ['darwin', 'windows']):
+if not 'linux' in system:
+    print('BLAHEJ')
     from zipfile import ZipFile, is_zipfile
     from re import sub, findall
     from pkg_resources import parse_version
