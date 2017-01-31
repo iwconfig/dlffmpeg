@@ -34,10 +34,10 @@ Sources:
 dlffmpeg._run() installs into default path if no argument, else string as path.
 getFFmpeg() contains all options, e.g.:
     dl = getFFmpeg()
-    dl.path
-    dl.silent
-    dl.pretty
-    dl.verbose
+    dl.path = '/path/to/dir'
+    dl.silent = True
+    dl.pretty = True
+    dl.verbose = False
     Execute with dl.run()
 Standalone: takes one argument for custom path or no argument for default.
 """
