@@ -41,7 +41,7 @@ getFFmpeg() contains all options, e.g.:
     Execute with dl.run()
 Standalone: takes one argument for custom path or no argument for default.
 """
-__version__ = '0.3'
+__version__ = '0.4'
 
 def info():
     return __info__
