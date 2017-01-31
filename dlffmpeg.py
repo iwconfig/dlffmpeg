@@ -8,7 +8,6 @@ from sys import stdout, argv, exit, version_info
 from subprocess import check_output, call
 
 system = platform.system().lower()
-# system = 'darwin'
 if any(x in system for x in ['darwin', 'windows']):
     from zipfile import ZipFile, is_zipfile
     from re import sub, findall
@@ -31,16 +30,23 @@ Sources:
                                                    http://www.ffmpegmac.net
         - Windows (64-/32bit)                    : https://ffmpeg.zeranoe.com
 
-run() uses default path.
-run('/path') installs ffmpeg into custom '/path'.
-As standalone: takes 0 or 1 argument. Either default or custom path.
+
+dlffmpeg._run() installs into default path if no argument, else string as path.
+getFFmpeg() contains all options, e.g.:
+    dl = getFFmpeg()
+    dl.path
+    dl.silent
+    dl.pretty
+    dl.verbose
+    Execute with dl.run()
+Standalone: takes one argument for custom path or no argument for default.
 """
 __version__ = '0.3'
 
 def info():
     return __info__
 
-def run(topath = None, silent = False, pretty=False, verbose=True):
+def _run(topath = None, silent = False, pretty=False, verbose=True):
     cursor.hide()
     atexit.register(cursor.show)
 
@@ -80,20 +86,31 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
             if [x for x in v if x == platform.machine().lower()]:
                 return k
 
+    def check_permission(x): ### fixa detta
+        if not os.access(x, os.W_OK):
+            info('-'*60, beforeString=1, afterString=1)
+            if os.path.isfile(x):
+                info("'{}' already exist but \nyou need root privilege.".format(x))
+            else:
+                info("you need write permission to '{}'.".format(x))
+            info('run as root.', beforeString=2, afterString=1)
+            info('-'*60, afterString=1)
+            exit(1)
+            
+            
+            
+
     def path(path = None):
         if path == None:
             if 'linux' in system:
-                path = '/usr/local/bin/'
+                path = '/usr/local/bin'
             if 'darwin' in system:
-                ##### ---> path = '/tmp/mac'
-                path = '/tmp/mac'
+                path = '/usr/local/bin'
             if 'windows' in system:
                 if arch == '64bit':
                     path = 'C:\\Program Files\\ffmpeg\\'
-                    path = '/tmp/blahej/ffmpeg/'
                 if arch == '32bit':
                     path = 'C:\\Program Files (x86)\\ffmpeg\\'
-                    path = '/tmp/blahej/ffmpeg/'
         else:
             if os.path.isfile(path) and not path.endswith('ffmpeg'):
                 path = os.path.dirname(path)
@@ -105,9 +122,7 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
                 os.makedirs(path)
                 
         if os.path.isdir(path):
-            if not os.access(path, os.W_OK):
-                print('you need write permission to {}. run as root.'.format(path))
-                exit(1)
+            check_permission(path)
             return path
         else:
             return False    
@@ -144,7 +159,8 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
             if file.endswith('.md5'):
                 info('downloading md5 sum',afterString=1, verbose=False)
             info('downloading ffmpeg',afterString=1, verbose=False)
-            
+        if os.path.exists(tmp):
+            check_permission(tmp)
         while True:
             for x in range(5):
                 r = get(url + file)
@@ -191,7 +207,6 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
         except:
             info('something went wrong', beforeString=3, afterString=2) 
             import traceback
-            print('Exception in user code:')
             print('-'*60)
             traceback.print_exc(file=stdout)
             print('-'*60)
@@ -240,12 +255,19 @@ def run(topath = None, silent = False, pretty=False, verbose=True):
                     info('INSTALLED', afterString=1)
                 else:
                     info('ffmpeg is now up to date', afterString=1, verbose=False)
-    
-                os.remove(tmp)
-                if 'linux' in system:
-                    os.remove(tmp_md5)
-                if verbose:
-                    info('ffmpeg is now istalled and temporary files are deleted. good bye.', beforeString=2, afterString=1, indent=False)
+
+                try:
+                    f = tmp
+                    os.remove(f)
+                    if 'linux' in system:
+                        f = tmp_md5
+                        os.remove(f)
+                except PermissionError:
+                    info('error:', 'tried to remove temporary files', beforeString=2, afterString=1)
+                    check_permission(f)
+                else:
+                    if verbose:
+                        info('ffmpeg is now istalled and temporary files are deleted. good bye.', beforeString=2, afterString=1, indent=False)
 
 
     arch = arch()
@@ -338,6 +360,22 @@ if __name__ == '__main__':
 
     args = p.parse_args()
     try:
-        run(args.path, args.silent, args.pretty, args.verbose)
+        _run(args.path, args.silent, args.pretty, args.verbose)
     except KeyboardInterrupt:
         print('\n\nctrl-C: exit')
+else:
+    class getFFmpeg:
+        """
+        For module usage, call this class to set wanted options.
+        """
+        def __init__(self):
+            self.path = None
+            self.silent = False
+            self.pretty = False
+            self.verbose = True
+
+        def run(self):
+            """
+            Execute with custom options. Equivalent to dlffmpeg._run() if options not set.
+            """
+            _run(self.path, self.silent, self.pretty, self.verbose)
