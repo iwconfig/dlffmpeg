@@ -50,5 +50,5 @@ Standalone takes one argument for custom path or no argument for default.
 
 
 ##### Contribute #####
-I am certain my code needs better perspective and from what this script reprecent i'm currently not capable of comprehending better principles.
+I am certain my code needs better perspective and from what this script represent i'm currently not capable of comprehending better principles.
 Please feel free to fork and improve. :)
