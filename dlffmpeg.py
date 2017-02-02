@@ -196,7 +196,9 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
                 for p, d, f in os.walk(path, topdown=False):
                     if 'linux' in system:
                         for n in ['ffmpeg', 'ffmpeg-10bit', 'ffprobe', 'ffserver']:
-                            os.remove(os.path.join(p, n))
+                            try:
+                                os.remove(os.path.join(p, n))
+                            except: pass
                     else:
                         for n in f:
                             os.remove(os.path.join(p, n))
