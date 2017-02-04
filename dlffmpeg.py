@@ -264,7 +264,7 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
                     if 'linux' in system:
                         f = tmp_md5
                         os.remove(f)
-                except PermissionError:
+                except OSError:
                     info('error:', 'tried to remove temporary files', beforeString=2, afterString=1)
                     check_permission(f)
                 else:
