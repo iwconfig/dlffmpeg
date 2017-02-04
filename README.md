@@ -1,4 +1,4 @@
-# dlffmpeg.py #
+# dlffmpeg #
 
 Simple python module/standalone script to download and install the latest (static binary) release of FFmpeg from different sources. You can find the links to these sources on the official homepage of FFmpeg.
 
@@ -12,8 +12,19 @@ Linux   (64-/32bit, armv7, armv8) | https://johnvansickle.com/ffmpeg
 OS X    (64-/32bit, PPC)          | http://evermeet.cx/ffmpeg and http://www.ffmpegmac.net
 Windows (64-/32bit)               | https://ffmpeg.zeranoe.com
 
+## Installation ##
 
+Using pip: `sudo pip install -U dlffmpeg`
 
+or pip with git: `sudo pip install git+https://github.com/iwconfig/dlffmpeg.git`
+
+From source code:
+
+    git clone https://github.com/iwconfig/dlffmpeg.git
+    cd dlffmpeg
+    sudo python setup.py install
+
+## Usage ##
 `dlffmpeg._run()` installs into default path if no argument, else string as path.
 
 
@@ -29,7 +40,7 @@ Execute with `dl.run()`
 
 Standalone takes one argument for custom path or no argument for default.
 
-    ~/ $ dlffmpeg.py --help
+    ~/ $ dlffmpeg --help
     usage: dlffmpeg.py [-h] [-s] [-lv] [-p] [--version] [path]
     
     specify installation path. no path equals to default path.
@@ -44,6 +55,7 @@ Standalone takes one argument for custom path or no argument for default.
       -p, --pretty
       --version            show program's version number and exit
 
+-------
 ### Todo ###
 + Ability to compile and install from source, cross-platform
 + Better module support
@@ -54,4 +66,4 @@ I am certain my code needs better perspective and from what this script represen
 Please feel free to fork and improve. :)
 
 
-This project is licensed under the terms of the MIT license.
+This project is licensed under the terms of [the MIT license](https://github.com/iwconfig/dlffmpeg/blob/master/LICENSE).
