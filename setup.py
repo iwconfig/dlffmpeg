@@ -2,25 +2,10 @@ from __future__ import print_function
 from setuptools import setup
 from dlffmpeg import __version__
 
-try:
-    import pypandoc
-    long_description = pypandoc.convert('README.md', 'rst')
-    print('converted README.md into RST format')
-except (ImportError, OSError):
-    from sys import argv, exit
-    if not 'install' in argv[1:]:
-        print('try running `pip install -U pypandoc`')
-        print('you might need to install pandoc manually. consult the instructions at https://github.com/bebraw/pypandoc#installing-pandoc-manually')
-        exit(1)
-    print('pypandoc not found. using original markdown for long description instead')
-    long_description = open('README.md').read()
-    
-
 setup(
     name = 'dlffmpeg',
     version = __version__,
     description = 'Download and install ffmpeg, cross-platform.',
-    long_description = long_description,
     author = 'iwconfig',
     author_email = 'snelhingst@gmail.com',
     url = 'https://github.com/iwconfig/dlffmpeg', 
