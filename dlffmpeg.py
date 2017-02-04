@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 from __future__ import print_function
-import os, platform, cursor, atexit
+import os, platform
 from codecs import open
-from requests import get, Timeout, ConnectionError
 from tempfile import gettempdir
 from sys import stdout, argv, exit, version_info
 from subprocess import check_output, call
+
+try:
+    from requests import get, Timeout, ConnectionError
+    import cursor, atexit
+except ImportError:
+    pass
 
 system = platform.system().lower()
 if not 'linux' in system:
