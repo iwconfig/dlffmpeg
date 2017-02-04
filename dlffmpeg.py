@@ -46,6 +46,18 @@ __version__ = '0.4'
 def info():
     return __info__
 
+def args():
+    from argparse import ArgumentParser
+    p = ArgumentParser(description='specify installation path. no path equals to default path.')
+    p.add_argument('path', nargs='?', const=None)
+    p.add_argument('-s', '--silent', action='store_true', dest='silent')
+    p.add_argument('-lv', '--less-verbose', action='store_false', dest='verbose')
+    p.add_argument('-p', '--pretty', action='store_true', dest='pretty')
+    p.add_argument('--version', action='version',
+                    version='%(prog)s {version}'.format(version=__version__))
+    return p.parse_args()
+
+
 def _run(topath = None, silent = False, pretty=False, verbose=True):
     cursor.hide()
     atexit.register(cursor.show)
@@ -350,21 +362,13 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
             dl(url, file, tmp)
         install(path)
 
-if __name__ == '__main__':
-    from argparse import ArgumentParser
-    p = ArgumentParser(description='specify installation path. no path equals to default path.')
-    p.add_argument('path', nargs='?', const=None)
-    p.add_argument('-s', '--silent', action='store_true', dest='silent')
-    p.add_argument('-lv', '--less-verbose', action='store_false', dest='verbose')
-    p.add_argument('-p', '--pretty', action='store_true', dest='pretty')
-    p.add_argument('--version', action='version',
-                    version='%(prog)s {version}'.format(version=__version__))
 
-    args = p.parse_args()
-    try:
-        _run(args.path, args.silent, args.pretty, args.verbose)
-    except KeyboardInterrupt:
-        print('\n\nctrl-C: exit')
+if __name__ == '__main__':
+        arg = args()
+        try:
+            _run(arg.path, arg.silent, arg.pretty, arg.verbose)
+        except KeyboardInterrupt:
+            print('\n\nctrl-C: exit')
 else:
     class getFFmpeg:
         """

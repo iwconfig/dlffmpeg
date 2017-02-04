@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+import dlffmpeg
+if __name__ == "__main__":
+    arg = dlffmpeg.args()
+    try:
+        dlffmpeg._run(arg.path, arg.silent, arg.pretty, arg.verbose)
+    except KeyboardInterrupt:
+        print('\n\nctrl-C: exit')
