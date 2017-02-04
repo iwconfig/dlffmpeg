@@ -23,7 +23,7 @@ setup(
     long_description = long_description,
     author = 'iwconfig',
     author_email = 'snelhingst@gmail.com',
-    #url = '', 
+    url = 'https://github.com/iwconfig/dlffmpeg', 
     py_modules=['dlffmpeg'],
     install_requires=[
         'cursor>=1.1.0',
