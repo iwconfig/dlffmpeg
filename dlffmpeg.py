@@ -32,16 +32,18 @@ Sources:
 
 
 dlffmpeg._run() installs into default path if no argument, else string as path.
+
 getFFmpeg() contains all options, e.g.:
     dl = getFFmpeg()
     dl.path = '/path/to/dir'
     dl.silent = True
     dl.pretty = True
     dl.verbose = False
-    Execute with dl.run()
+Execute with dl.run()
+
 Standalone: takes one argument for custom path or no argument for default.
 """
-__version__ = '0.4'
+__version__ = '0.5'
 
 def info():
     return __info__
