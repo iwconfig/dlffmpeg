@@ -16,6 +16,36 @@ dlffmpeg
 | Windows (64-/32bit)               | https://ffmpeg.zeranoe.com                               |
 +-----------------------------------+----------------------------------------------------------+
 
+Quick run!
+----------
+| MacOS / OSX:
+
+::
+
+    Using cURL
+    curl https://git.io/vDC82 | python
+
+| Linux:
+
+::
+
+    # Using cURL
+    curl https://git.io/vDC82 | python
+
+    # Using wget
+    wget -O - https://git.io/vDC82 | python
+
+| Windows:
+
+::
+
+    #Using BITS
+    bitsadmin  /transfer dlffmpeg  /download  /priority normal https://git.io/vDC82 %Temp%\dlffmpeg.py
+    cd %Temp%
+    python dlffmpeg.py
+
+Note: If BITS under Windows doesn't work, try downloading `dlffmpeg.py <https://git.io/vDC82>`_ manually and run ``python dlffmpeg.py``
+
 Installation
 ------------
 
@@ -38,10 +68,11 @@ Usage
 ``dlffmpeg._run()`` installs into default path if no argument, else
 string as path.
 
-``getFFmpeg()`` contains all options, e.g.:
+| ``getFFmpeg()`` contains all options, e.g.:
 
 ::
 
+    from dlffmpeg import getFFmpeg
     dl = getFFmpeg()
     dl.path = '/path/to/dir'
     dl.silent = True
