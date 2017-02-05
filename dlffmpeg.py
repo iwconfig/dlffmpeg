@@ -116,20 +116,30 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
             info('-'*60, afterString=1)
             exit(1)
             
+    def which(program):
+        if 'windows' in system:
+            program = "{0}.exe".format(program)
             
-            
+        for path in os.environ["PATH"].split(os.pathsep):
+            if os.path.exists(os.path.join(path, program)):
+                    return os.path.join(path, program)
+        return None
 
     def path(path = None):
         if path == None:
-            if 'linux' in system:
-                path = '/usr/local/bin'
-            if 'darwin' in system:
-                path = '/usr/local/bin'
-            if 'windows' in system:
-                if arch == '64bit':
-                    path = 'C:\\Program Files\\ffmpeg\\'
-                if arch == '32bit':
-                    path = 'C:\\Program Files (x86)\\ffmpeg\\'
+            ffmpeg = which('ffmpeg')
+            if ffmpeg:
+                path = os.path.dirname(ffmpeg)
+            else:
+                if 'linux' in system:
+                    path = '/usr/local/bin'
+                if 'darwin' in system:
+                    path = '/usr/local/bin'
+                if 'windows' in system:
+                    if arch == '64bit':
+                        path = 'C:\\Program Files\\ffmpeg\\'
+                    if arch == '32bit':
+                        path = 'C:\\Program Files (x86)\\ffmpeg\\'
         else:
             if os.path.isfile(path) and not path.endswith('ffmpeg'):
                 path = os.path.dirname(path)
