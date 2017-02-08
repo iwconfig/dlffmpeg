@@ -48,7 +48,7 @@ Execute with dl.run()
 
 Standalone: takes one argument for custom path or no argument for default.
 """
-__version__ = '0.5'
+__version__ = '0.5.1'
 
 def info():
     return __info__
