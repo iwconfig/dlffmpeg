@@ -47,7 +47,7 @@ Execute with dl.run()
 
 Standalone: takes one argument for custom path or no argument for default.
 """
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 
 def info():
     return __info__
@@ -366,8 +366,8 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
             arch = 'win32'
         url = 'https://ffmpeg.zeranoe.com/builds/{}/static/'.format(arch)
         # r = get(url)
-        latest = search('-([\d\.]+)(?=-{}.+">)'.format(arch), str(get(url).text)).group()
-        file = 'ffmpeg{1}-{0}-static.zip'.format(arch, latest)
+        latest = search('-([\d\.]+)(?=-{}.+">)'.format(arch), str(get(url).text)).group()[1:]
+        file = 'ffmpeg-{1}-{0}-static.zip'.format(arch, latest)
         tmp += file
         info('{} static (latest release)', latest, afterString=2)
         if verbose:
