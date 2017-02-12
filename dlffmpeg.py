@@ -15,8 +15,7 @@ except ImportError:
 system = platform.system().lower()
 if not 'linux' in system:
     from zipfile import ZipFile, is_zipfile
-    from re import sub, findall
-    from pkg_resources import parse_version
+    from re import search
     from shutil import copy2
 
 
@@ -330,12 +329,11 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
     if 'darwin' in system:
         if arch == '64bit':
             url = 'http://evermeet.cx/pub/ffmpeg/'
-            r = get(url)
-            latest = findall(r'ffmpeg.+(?=.dmg">)', str(r.text))
-            latest = '.'.join(findall('\d', max(latest, key=parse_version)))
+            # r = get(url)
+            latest = search('([\d\.]+)(?=.dmg">)', str(get(url).text)).group()
             info('{} static (latest release)', latest, afterString=1)
             if verbose:
-                info('source:', url.replace('/pub','').rsplit('/', 1)[0], afterString=2)
+                info('source:', url.replace('/pub','').rsplit('/', 1)[0], afterString=1)
             file = 'ffmpeg-{}.dmg'.format(latest)
             tmp += file
             dl(url, file, tmp)
@@ -347,7 +345,7 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
             info('2.8 static', afterString=1)
             if verbose:
                 info('info:', 'for os x leopard (10.5.*) or 32-bit architecture', afterString=1)
-                info('source:', url.rsplit('/', 2)[0], afterString=2)
+                info('source:', url.rsplit('/', 2)[0], afterString=1)
             dl(url, file, tmp)
             install(path)
         if '10.6' in platform.mac_ver()[0]:
@@ -357,24 +355,23 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
             info('3.2.1 static', afterString=1)
             if verbose:
                 info('info:', 'for snow leopard (10.6.*)', afterString=1)
-                info('source:', url.rsplit('/', 2)[0], afterString=2)
+                info('source:', url.rsplit('/', 2)[0], afterString=1)
             dl(url, file, tmp)
             install(path)
     
     if 'windows' in system:
-        r = get('http://ffmpeg.org/releases/')
-        latest = findall(r'ffmpeg.+(?=.tar.+">)', str(r.text))
-        latest = '.'.join(findall('\d', max(latest, key=parse_version)))
         if arch == '64bit':
             arch = 'win64'
         if arch == '32bit':
             arch = 'win32'
         url = 'https://ffmpeg.zeranoe.com/builds/{}/static/'.format(arch)
-        file = 'ffmpeg-{1}-{0}-static.zip'.format(arch, latest)
+        # r = get(url)
+        latest = search('-([\d\.]+)(?=-{}.+">)'.format(arch), str(get(url).text)).group()
+        file = 'ffmpeg{1}-{0}-static.zip'.format(arch, latest)
         tmp += file
         info('{} static (latest release)', latest, afterString=2)
         if verbose:
-            info('source:', url.rsplit('/', 4)[0], afterString=2)
+            info('source:', url.rsplit('/', 4)[0], afterString=1)
         if is_zipfile(tmp) is False:
             dl(url, file, tmp)
         install(path)
