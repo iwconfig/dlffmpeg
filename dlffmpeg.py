@@ -47,7 +47,7 @@ Execute with dl.run()
 
 Standalone: takes one argument for custom path or no argument for default.
 """
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 
 def info():
     return __info__
@@ -60,7 +60,7 @@ def args():
     p.add_argument('-lv', '--less-verbose', action='store_false', dest='verbose')
     p.add_argument('-p', '--pretty', action='store_true', dest='pretty')
     p.add_argument('--version', action='version',
-                    version='%(prog)s {version}'.format(version=__version__))
+                    version='{}'.format(__version__))
     return p.parse_args()
 
 
@@ -151,9 +151,7 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
                 
         if os.path.isdir(path):
             check_permission(path)
-            return path
-        else:
-            return False    
+        return path
 
     def check_md5(file_name, md5_file):
         if os.path.isfile(md5_file) == False or os.path.isfile(file_name) == False:
@@ -268,7 +266,7 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
                         if not os.path.exists(d):
                             os.makedirs(d)
                             continue
-                        data = zf.read(i, tmp)
+                        data = zf.read(i)
                         file = d + os.sep + f[-1]
                         f = open(file,'wb+')
                         f.write(data)
