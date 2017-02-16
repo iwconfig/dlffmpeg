@@ -248,9 +248,11 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
                     call(['tar', '-xJf', tmp, '--strip-components=1', '--overwrite', '-C', path, '--wildcards', '*/ffmpeg', '*/ffmpeg-10bit', '*/ffprobe', '*/ffserver'])
                 if 'darwin' in system:
                     if arch == '64bit':
+                        from glob import glob
                         call(['hdiutil', 'attach', tmp])
                         info('copying:', 'ffmpeg -> '+path)
-                        copy2('/Volumes/FF*/ffmpeg', path)
+                        file = glob(r'/Volumes/FFmpeg*/ffmpeg')[0]
+                        copy2(file, path)
                     if arch == '32bit' or platform.mac_ver()[0].rsplit('.', 1)[0] in ('10.5', '10.6'):
                         zf = ZipFile(tmp, 'r')
                         zf.extractall(path)
