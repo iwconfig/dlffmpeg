@@ -17,7 +17,29 @@ if not 'linux' in system:
     from zipfile import ZipFile, is_zipfile
     from re import search
     from shutil import copy2
-
+if 'windows' in system:
+    try:
+        import winreg
+    except ImportError:
+        import _winreg as winreg
+    import win32gui
+    import win32con
+    try:
+        sub_key = r'SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, sub_key, 0, winreg.KEY_ALL_ACCESS) 
+    except WindowsError:
+        from msvcrt import getch
+        print('You need to have admin privileges to register the environment variable.')
+        print('Press "enter" to cancel or "space" to continue installation without it. (default: enter)')
+        while True:
+            choice = getch().lower()
+            if choice == b'\r':
+                exit()
+            elif choice == b' ':
+                key = None
+                break
+            else:
+               print("Please press 'enter' or 'space'")
 
 __info__ = """
 This module, which also functions as a standalone script, downloads
@@ -47,7 +69,7 @@ Execute with dl.run()
 
 Standalone: takes one argument for custom path or no argument for default.
 """
-__version__ = '0.5.3'
+__version__ = '0.6.0'
 
 def info():
     return __info__
@@ -128,17 +150,14 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
         if path == None:
             ffmpeg = which('ffmpeg')
             if ffmpeg:
-                path = os.path.dirname(ffmpeg)
+                path = os.path.dirname(ffmpeg) if not 'windows' in system else os.path.dirname(ffmpeg).rsplit(os.sep, 2)[0]
             else:
                 if 'linux' in system:
                     path = '/usr/local/bin'
                 if 'darwin' in system:
                     path = '/usr/local/bin'
                 if 'windows' in system:
-                    if arch == '64bit':
-                        path = 'C:\\Program Files\\ffmpeg\\'
-                    if arch == '32bit':
-                        path = 'C:\\Program Files (x86)\\ffmpeg\\'
+                    path = 'C:\\Program Files'
         else:
             if os.path.isfile(path) and not path.endswith('ffmpeg'):
                 path = os.path.dirname(path)
@@ -167,7 +186,7 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
                 md5_returned = md5(data).hexdigest()
             if original_md5 == md5_returned:
                 if verbose:
-                    info('verified', afterString=1)
+                    info('verified')
                 else:
                     info('checksum verified', afterString=1, verbose=False)
                 return True
@@ -215,9 +234,9 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
     
     def install(path):
         try:
-            if os.path.exists(path + os.sep + 'ffmpeg'):
+            if os.path.exists(os.path.join(path, 'ffmpeg')):
                 if verbose:
-                    info('old ffmpeg:', beforeString=1)
+                    info('old ffmpeg:', beforeString=2)
                     
                 for p, d, f in os.walk(path, topdown=False):
                     if 'linux' in system:
@@ -231,7 +250,7 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
                         for n in d:
                             os.rmdir(os.path.join(p, n))
                 if verbose:
-                    info('removed', afterString=2)
+                    info('removed')
         except:
             info('something went wrong', beforeString=3, afterString=2) 
             import traceback
@@ -241,7 +260,7 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
         else:
             try:
                 if verbose:
-                    info('install path:', '{}{}'.format(path, ' (default)' if not topath else ''))
+                    info('install path:', '{}{}'.format(path, ' (default)' if not topath else ''), beforeString=1)
                     info('installing:', beforeString=1)
                 if 'linux' in system:
                     check_output(['tar', '-tf', tmp]).splitlines()[0]
@@ -258,24 +277,38 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
                         zf.extractall(path)
                         zf.close()
                 if 'windows' in system:
+                    path = os.path.join(path, 'ffmpeg')
                     zf = ZipFile(tmp, 'r')
                     for i in zf.namelist():
                         if i == zf.namelist()[0]:
                             continue
                         f = i.split('/')
                         f.pop(0)
-                        d = path + os.sep.join(f[0:-1])
+                        d = os.path.join(path, os.sep.join(f[0:-1]))
                         if not os.path.exists(d):
                             os.makedirs(d)
                             continue
                         data = zf.read(i)
-                        file = d + os.sep + f[-1]
+                        file = os.sep.join([d, f[-1]])
                         f = open(file,'wb+')
                         f.write(data)
                         f.close()
                     zf.close()
-                    call(['setx', '/M', 'PATH', path + 'ffmpeg\\bin;%PATH%'], shell=False)
-    
+                    
+                    if key:
+                        try:
+                            value, _ = winreg.QueryValueEx(key, 'PATH')
+                        except WindowsError:
+                            value = ''
+                        v = os.path.join(path, 'bin')
+                        if not v in value:
+                            value += ';' + v if ';' in value else v
+                        winreg.SetValueEx(key, 'PATH', 0, winreg.REG_EXPAND_SZ, value)
+                        winreg.CloseKey(key)
+                        # notify the system about the changes
+                        win32gui.SendMessage(win32con.HWND_BROADCAST, win32con.WM_SETTINGCHANGE, 0, sub_key)
+
+
             except:
                 print('\nerror\n')
                 import traceback
@@ -329,7 +362,6 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
     if 'darwin' in system:
         if arch == '64bit':
             url = 'http://evermeet.cx/pub/ffmpeg/'
-            # r = get(url)
             latest = search('([\d\.]+)(?=.dmg">)', str(get(url).text)).group()
             info('{} static (latest release)', latest, afterString=1)
             if verbose:
@@ -364,14 +396,15 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
             arch = 'win64'
         if arch == '32bit':
             arch = 'win32'
+
         url = 'https://ffmpeg.zeranoe.com/builds/{}/static/'.format(arch)
-        # r = get(url)
         latest = search('-([\d\.]+)(?=-{}.+">)'.format(arch), str(get(url).text)).group()[1:]
         file = 'ffmpeg-{1}-{0}-static.zip'.format(arch, latest)
         tmp += file
-        info('{} static (latest release)', latest, afterString=2)
+        info('{} static (latest release)', latest, afterString=1)
         if verbose:
             info('source:', url.rsplit('/', 4)[0], afterString=1)
+
         if is_zipfile(tmp) is False:
             dl(url, file, tmp)
         install(path)
