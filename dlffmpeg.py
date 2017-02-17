@@ -210,7 +210,6 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
             for x in range(5):
                 r = get(url + file)
                 if r.status_code != 200:
-                    from time import sleep
                     if verbose:
                         info('error:', 'something wrong with connection, retry #{}/5'.format(x+1), beforeString=1)
                     else:
@@ -268,10 +267,10 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
                 if 'darwin' in system:
                     if arch == '64bit':
                         from glob import glob
-                        call(['hdiutil', 'attach', tmp])
-                        info('copying:', 'ffmpeg -> '+path)
+                        call(['hdiutil', 'attach', tmp], stdout=open(os.devnull, 'wb'))
                         file = glob(r'/Volumes/FFmpeg*/ffmpeg')[0]
                         copy2(file, path)
+                        call(['hdiutil', 'unmount', os.path.dirname(file)], stdout=open(os.devnull, 'wb'))
                     if arch == '32bit' or platform.mac_ver()[0].rsplit('.', 1)[0] in ('10.5', '10.6'):
                         zf = ZipFile(tmp, 'r')
                         zf.extractall(path)
