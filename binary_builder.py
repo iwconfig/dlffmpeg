@@ -9,7 +9,7 @@ def input():
     except NameError:
         return __builtins__.input()
 
-__version__ = '0.1'
+__version__ = '0.2'
 
 def main(args):
     path = os.getcwd()
