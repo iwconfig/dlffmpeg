@@ -85,8 +85,17 @@ def args():
                     version='{}'.format(__version__))
     return p.parse_args()
 
+def arch():
+    arches = {'64bit':   ['x86_64','x86-64','amd64', 'x64', '64'],
+          '32bit':   ['x86', 'x32', '32', 'i686', 'i386'],
+          'armel' :   ['armv4tl', 'armv5l', 'armv6l'],
+          'armhf' :   ['armv7l', 'armv8l']}
 
-def _run(topath = None, silent = False, pretty=False, verbose=True):
+    for k, v in arches.iteritems() if version_info[0] == 2 else arches.items():
+        if [x for x in v if x == platform.machine().lower()]:
+            return k
+
+def _run(topath = None, silent = False, pretty=False, verbose=True, arch=arch(), tmp=gettempdir()+os.sep):
     cursor.hide()
     atexit.register(cursor.show)
 
@@ -115,16 +124,6 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
                 k = k+t+v
         stdout.write('{}{}{}{}'.format('\n'*beforeString, '\t'*indent, k, '\n'*afterString))
         stdout.flush()
-        
-    def arch():
-        arches = {'64bit':   ['x86_64','x86-64','amd64', 'x64', '64'],
-              '32bit':   ['x86', 'x32', '32', 'i686', 'i386'],
-              'armel' :   ['armv4tl', 'armv5l', 'armv6l'],
-              'armhf' :   ['armv7l', 'armv8l']}
-
-        for k, v in arches.iteritems() if version_info[0] == 2 else arches.items():
-            if [x for x in v if x == platform.machine().lower()]:
-                return k
 
     def check_permission(x): ### fixa detta
         if not os.access(x, os.W_OK):
@@ -332,8 +331,8 @@ def _run(topath = None, silent = False, pretty=False, verbose=True):
                         info('ffmpeg is now istalled and temporary files are deleted. good bye.', beforeString=2, afterString=1, indent=False)
 
 
-    arch = arch()
-    tmp = gettempdir() + os.sep
+    if not os.path.exists(tmp):
+        os.mkdir(tmp)
     path = path(topath)
     if verbose:
         info('arch:', arch, beforeString=1, afterString=1)
