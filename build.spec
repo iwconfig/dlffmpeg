@@ -1,6 +1,10 @@
 # -*- mode: python -*-
 from pkgutil import iter_modules
 from platform import system, architecture
+from sys import path
+
+path.insert(0, os.getcwd())
+from dlffmpeg import __version__ as v, arch
 
 for m in ['cursor', 'requests']:
     if m not in [name for loader, name, ispkg in iter_modules()]:
@@ -8,7 +12,10 @@ for m in ['cursor', 'requests']:
         pip.main(['install', '-U', 'cursor', 'requests'])
 
 system = system().lower()
-arch = architecture()[0]
+arch = arch()
+if 'arm' in arch:
+    arch = '{0}-{1}'.format(arch, architecture()[0])
+
 if 'linux' in system:
     hiddenimports = []
     system_arch = 'linux-{}'.format(arch)
@@ -31,9 +38,6 @@ if 'windows' in system:
         'queue',
         'cursor.cursor']
 
-from sys import path
-path.insert(0, os.getcwd())
-from dlffmpeg import __version__ as v
 name = 'dlffmpeg-{0}-{1}'.format(v, system_arch)
 
 block_cipher = None
