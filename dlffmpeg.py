@@ -69,7 +69,7 @@ Execute with dl.run()
 
 Standalone: takes one argument for custom path or no argument for default.
 """
-__version__ = '0.6.1'
+__version__ = '0.6.2'
 
 def info():
     return __info__
@@ -209,6 +209,7 @@ def _run(topath = None, silent = False, pretty=False, verbose=True, arch=arch(),
             for x in range(5):
                 r = get(url + file)
                 if r.status_code != 200:
+                    from time import sleep
                     if verbose:
                         info('error:', 'something wrong with connection, retry #{}/5'.format(x+1), beforeString=1)
                     else:
