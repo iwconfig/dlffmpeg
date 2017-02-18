@@ -106,6 +106,11 @@ def main(args):
     if args.unix:
         if which('pyinstaller'):
             os.system('pyinstaller --onefile {}'.format(args.file))
+        else:
+            print('installing pyinstaller using pip')
+            from pip import main as pip
+            pip(['install', '-U', 'pyinstaller'])
+            os._exit(0)
     
     if args.windows:
         if not 'windows' in system:
