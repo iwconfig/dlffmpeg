@@ -3,6 +3,12 @@ from __future__ import print_function
 from platform import system
 import os, shutil, argparse
 
+def input():
+    try:
+        return raw_input()
+    except NameError:
+        return __builtins__.input()
+
 __version__ = '0.1'
 
 def main(args):
@@ -33,7 +39,7 @@ def main(args):
             num = nlist(ls)
         print('Select file (default: {}) [number/enter]:'.format(ls[0]), end=' ')
         while True:
-            n = raw_input()
+            n = input()
             if not n:
                 n = '1'
             if n.isdigit():
@@ -42,10 +48,10 @@ def main(args):
                     break
             print('\nEnter valid number [{0}-{1}]:'.format(num.keys()[0], num.keys()[-1]), end=' ')
     
-        if n == num.keys()[-1]:
+        if n == list(num)[-1]:
             while True:
                 print('\nEnter path to look for files:', end=' ')
-                path = raw_input()
+                path = input()
                 if not os.path.isdir(path):
                     print('Not a valid path. Try again.')
                 if not dirlist(path):
@@ -73,7 +79,7 @@ def main(args):
                 print(message, end=' ')
                 yes = set(['yes','y', 'ye', ''])
                 no = set(['no','n'])
-                choice = raw_input().lower()
+                choice = input().lower()
                 if choice in yes:
                     return True
                 elif choice in no:
@@ -110,7 +116,7 @@ def main(args):
                 choice = choose("Can't find wine path. Is Wine installed? [y/n]")
                 if choice == True:
                     print("Please specify the wine path below. Press 'enter' for default (~/.wine):", end=' ')
-                    prefix = raw_input()
+                    prefix = input()
                     if prefix == '':
                         prefix = os.path.expanduser('~/.wine')
                     if prefix.startswith('~'):
