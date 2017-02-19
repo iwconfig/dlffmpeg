@@ -238,8 +238,16 @@ def _run(topath = None, silent = False, pretty=False, verbose=True, arch=arch(),
                     info('old ffmpeg:', beforeString=2)
                     
                 for p, d, f in os.walk(path, topdown=False):
-                    if 'linux' in system:
-                        for n in ['ffmpeg', 'ffmpeg-10bit', 'ffprobe', 'ffserver']:
+                    if system in ('linux', 'darwin'):
+                
+                        if 'darwin' in system and arch == '64bit':
+                            exelist = ['ffmpeg']
+                        else:
+                            exelist = ['ffmpeg', 'ffprobe', 'ffserver']
+                        if 'linux' in system:
+                            exelist.append('ffmpeg-10bit')
+                            
+                        for n in exelist:
                             try:
                                 os.remove(os.path.join(p, n))
                             except: pass
