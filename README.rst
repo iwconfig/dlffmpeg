@@ -18,33 +18,21 @@ dlffmpeg
 
 Quick run!
 ----------
-| MacOS / OSX:
+In a hurry or feeling lazy? Run one of these oneliners to download and execute the latest binary release. No python needed.
 
-::
-
-    Using cURL
-    curl https://git.io/vDC82 | python
-
-| Linux:
+| Linux and OS X:
 
 ::
 
     # Using cURL
-    curl https://git.io/vDC82 | python
+    curl https://git.io/vDdvo | sudo bash
 
-    # Using wget
-    wget -O - https://git.io/vDC82 | python
+    # Using wget (not installed by default on OSX)
+    wget -O - https://git.io/vDdvo | sudo bash
 
 | Windows:
 
-::
-
-    #Using BITS
-    bitsadmin  /transfer dlffmpeg  /download  /priority normal https://git.io/vDC82 %Temp%\dlffmpeg.py
-    cd %Temp%
-    python dlffmpeg.py
-
-Note: If BITS under Windows doesn't work, try downloading `dlffmpeg.py <https://git.io/vDC82>`_ manually and run ``python dlffmpeg.py``
+At the moment windows users are stuck with downloading and running `the latest binary file <https://github.com/iwconfig/dlffmpeg/releases/download/v0.6.3/dlffmpeg-0.6.3-windows-64bit.exe>`_ manually (as admin). But not for long!
 
 Installation
 ------------
@@ -104,6 +92,7 @@ Execute with ``dl.run()``
 
 Todo
 ~~~~
+- Use logging module instead
 - Ability to compile and install from source, cross-platform
 - Better module support
 
