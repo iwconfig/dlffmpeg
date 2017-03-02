@@ -2,9 +2,9 @@ dlffmpeg
 ========
 
 | Simple python module/standalone script to download and install the latest (static binary) release of FFmpeg from different sources. You can find the links to these sources on the official homepage of FFmpeg.
-| 
+|
 | Supported systems are Linux, OS X and Windows. Currently armv7 and armv8 architectures are only available for Linux systems.
-| 
+|
 
 +-----------------------------------+----------------------------------------------------------+
 | System (architecture)             | Source                                                   |
@@ -25,7 +25,7 @@ In a hurry or feeling lazy? Run one of these oneliners to download and execute t
 ::
 
     # Using cURL
-    curl https://git.io/vDdvo | sudo bash
+    curl -L https://git.io/vDdvo | sudo bash
 
     # Using wget (not installed by default on OSX)
     wget -O - https://git.io/vDdvo | sudo bash
